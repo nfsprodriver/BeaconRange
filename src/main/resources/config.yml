@@ -1,0 +1,6 @@
+# Must be a double value
+range: 500.0
+# Must be an integer value
+duration: 12000
+# Must be a boolean value
+combine: false
