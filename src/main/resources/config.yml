@@ -1,6 +1,11 @@
-# Must be a double value
-range: 500.0
-# Must be an integer value
-duration: 12000
-# Must be a boolean value
+# Must be a double value: Radius in blocks
+range: 50.0
+# Must be an integer value: Duration in ticks
+duration: 400
+# Must be a boolean value: Allow effects higher than II
 combine: false
+# Must be a boolean value: Whether to apply default effects on empty beacons with tier >= 4
+useDefault: true
+# Must be strings: Default effects in case useDefault is true
+defaultPrim: LUCK
+defaultSec: SATURATION
