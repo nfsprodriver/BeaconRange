@@ -7,5 +7,7 @@ combine: false
 # Must be a boolean value: Whether to apply default effects on empty beacons with tier >= 4
 useDefault: true
 # Must be strings: Default effects in case useDefault is true
-defaultPrim: LUCK
+defaultPrim: NIGHT_VISION
 defaultSec: SATURATION
+# Must be boolean: Whether to use the super star for transmitting stored effects
+useSuperStar: false

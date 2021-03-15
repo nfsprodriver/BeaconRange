@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     val kotlinVersion: String by System.getProperties()
@@ -7,7 +8,7 @@ plugins {
     id("com.github.johnrengelman.shadow").version("6.1.0")
 }
 group = "nfsprodriver"
-version = "1.0-SNAPSHOT"
+version = "1.2"
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
@@ -33,5 +34,10 @@ tasks {
     }
     build {
         dependsOn(shadowJar)
+    }
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
     }
 }
