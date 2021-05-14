@@ -1,24 +1,26 @@
+import events.RightClick
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Beacon
 import org.bukkit.block.BlockState
 import org.bukkit.enchantments.Enchantment
-import org.bukkit.entity.Player
+import org.bukkit.entity.*
+import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.inventory.ShapedRecipe
 
 import org.bukkit.inventory.ItemStack
-
-
+import java.util.function.Predicate
 
 
 class BeaconRange : JavaPlugin(){
 
     override fun onEnable() {
         saveDefaultConfig()
+        server.pluginManager.registerEvents(RightClick(), this)
         server.scheduler.scheduleSyncRepeatingTask(this, {
             beaconTask()
         }, 0L, 100L)
@@ -38,7 +40,7 @@ class BeaconRange : JavaPlugin(){
     private fun addSSRecipe() {
         val superStar = ItemStack(Material.NETHER_STAR)
         val ssMeta = superStar.itemMeta
-        ssMeta.setDisplayName("Super Star")
+        ssMeta.setDisplayName("Super Star (enabled)")
         superStar.setItemMeta(ssMeta)
         superStar.lore = listOf("No effects")
         val superStarRec = ShapedRecipe(NamespacedKey(this, "superStar"), superStar)
@@ -108,11 +110,51 @@ class BeaconRange : JavaPlugin(){
                     }
                 }
                 beaconEffects.forEach { (beaconEffectType, beaconEffectAmp) ->
-                    val effect = PotionEffect(beaconEffectType, duration, beaconEffectAmp)
-                    player.addPotionEffect(effect)
+                    val inv: Inventory = player.inventory
+                    val stars: List<ItemStack> = inv.contents.filter { itemStack -> itemStack?.itemMeta?.displayName?.contains("Super Star") == true }
+                    if (stars.isEmpty() || stars.first().itemMeta.displayName.contains("enabled")) {
+                        val effect = PotionEffect(beaconEffectType, duration, minOf(beaconEffectAmp, config.getInt("maxAmp").minus(1)))
+                        player.addPotionEffect(effect)
+                    }
                 }
                 if (useSuperStar) {
                     setSuperStar(player, beaconEffects)
+                }
+            }
+            world.loadedChunks.forEach { chunk ->
+                val villagers: List<Villager> = chunk.entities.filterIsInstance<Villager>()
+                villagers.forEach { villager ->
+                    val beaconEffects: MutableMap<PotionEffectType, Int> = mutableMapOf()
+                    beacons.forEach { beacon ->
+                        val villagerLoc: Location = villager.location
+                        val beaconLoc: Location = beacon.location
+                        if (villagerLoc.distance(beaconLoc) < range) {
+                            val effect1: PotionEffect? = beacon.primaryEffect
+                            if (effect1 != null) {
+                                val effect1Type: PotionEffectType = effect1.type
+                                if (combine) {
+                                    beaconEffects[effect1Type] = beaconEffects.getOrDefault(effect1Type, -1) + (effect1.amplifier + 1)
+                                } else {
+                                    beaconEffects[effect1Type] = effect1.amplifier
+                                }
+                            }
+                            val effect2: PotionEffect? = beacon.secondaryEffect
+                            if (effect2 != null) {
+                                val effect2Type: PotionEffectType = effect2.type
+                                if (combine) {
+                                    beaconEffects[effect2Type] = beaconEffects.getOrDefault(effect2Type, -1) + (effect2.amplifier + 1)
+                                } else {
+                                    beaconEffects[effect2Type] = effect2.amplifier
+                                }
+                            }
+                        }
+                    }
+                    beaconEffects.forEach { (beaconEffectType, beaconEffectAmp) ->
+                        val effect = PotionEffect(beaconEffectType, duration, minOf(beaconEffectAmp, config.getInt("maxAmp").minus(1)))
+                        if ((effect.type == PotionEffectType.REGENERATION || effect.type == PotionEffectType.DAMAGE_RESISTANCE)) {
+                            villager.addPotionEffect(effect)
+                        }
+                    }
                 }
             }
         }
@@ -120,7 +162,7 @@ class BeaconRange : JavaPlugin(){
 
     private fun setSuperStar (player: Player, beaconEffects: MutableMap<PotionEffectType, Int>) {
         val inv = player.inventory
-        if (inv.itemInOffHand.itemMeta?.displayName == "Super Star") {
+        if (inv.itemInOffHand.itemMeta?.displayName?.contains("Super Star") == true) {
             if (beaconEffects.keys.count() > 0) {
                 val lore = mutableListOf<String>()
                 beaconEffects.forEach { beaconEffect ->
@@ -133,7 +175,8 @@ class BeaconRange : JavaPlugin(){
 
     private fun addSuperStarEffects(player: Player) {
         val inv = player.inventory
-        if (inv.itemInOffHand.itemMeta?.displayName == "Super Star") {
+        val itemName: String? = inv.itemInOffHand.itemMeta?.displayName
+        if (itemName != null && itemName.contains("Super Star") && itemName.contains("enabled")) {
             inv.itemInOffHand.lore?.forEach { starEffect ->
                 val split: List<String> = starEffect.split(": ")
                 if (split.count() == 2) {

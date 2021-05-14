@@ -2,6 +2,8 @@
 range: 50.0
 # Must be an integer value: Duration in ticks
 duration: 400
+# Must be an integer value: Max effect amp (III = 3)
+maxAmp: 10
 # Must be a boolean value: Allow effects higher than II
 combine: false
 # Must be a boolean value: Whether to apply default effects on empty beacons with tier >= 4
