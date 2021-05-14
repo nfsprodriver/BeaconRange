@@ -85,7 +85,7 @@ class BeaconRange : JavaPlugin(){
                 beacons.forEach { beacon ->
                     val playerLoc: Location = player.location
                     val beaconLoc: Location = beacon.location
-                    if (playerLoc.distance(beaconLoc) < range) {
+                    if (beaconLoc.add(0.0, 1.0, 0.0).block.type.isTransparent && playerLoc.distance(beaconLoc) < range) {
                         val effect1: PotionEffect? = beacon.primaryEffect
                         if (effect1 != null) {
                             val effect1Type: PotionEffectType = effect1.type
@@ -128,7 +128,7 @@ class BeaconRange : JavaPlugin(){
                     beacons.forEach { beacon ->
                         val villagerLoc: Location = villager.location
                         val beaconLoc: Location = beacon.location
-                        if (villagerLoc.distance(beaconLoc) < range) {
+                        if (beaconLoc.add(0.0, 1.0, 0.0).block.type.isTransparent && villagerLoc.distance(beaconLoc) < range) {
                             val effect1: PotionEffect? = beacon.primaryEffect
                             if (effect1 != null) {
                                 val effect1Type: PotionEffectType = effect1.type
