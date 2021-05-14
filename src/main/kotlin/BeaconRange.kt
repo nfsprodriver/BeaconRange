@@ -3,6 +3,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Beacon
+import org.bukkit.block.Block
 import org.bukkit.block.BlockState
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.*
@@ -85,7 +86,7 @@ class BeaconRange : JavaPlugin(){
                 beacons.forEach { beacon ->
                     val playerLoc: Location = player.location
                     val beaconLoc: Location = beacon.location
-                    if (beaconLoc.add(0.0, 1.0, 0.0).block.type.isTransparent && playerLoc.distance(beaconLoc) < range) {
+                    if (isActive(beacon) && playerLoc.distance(beaconLoc) < range) {
                         val effect1: PotionEffect? = beacon.primaryEffect
                         if (effect1 != null) {
                             val effect1Type: PotionEffectType = effect1.type
@@ -128,7 +129,7 @@ class BeaconRange : JavaPlugin(){
                     beacons.forEach { beacon ->
                         val villagerLoc: Location = villager.location
                         val beaconLoc: Location = beacon.location
-                        if (beaconLoc.add(0.0, 1.0, 0.0).block.type.isTransparent && villagerLoc.distance(beaconLoc) < range) {
+                        if (isActive(beacon) && villagerLoc.distance(beaconLoc) < range) {
                             val effect1: PotionEffect? = beacon.primaryEffect
                             if (effect1 != null) {
                                 val effect1Type: PotionEffectType = effect1.type
@@ -171,6 +172,11 @@ class BeaconRange : JavaPlugin(){
                 inv.itemInOffHand.lore = lore
             }
         }
+    }
+
+    private fun isActive(beacon: Beacon): Boolean {
+        val aboveBeacon: Block = beacon.location.add(0.0, 1.0, 0.0).block
+        return aboveBeacon.isEmpty || aboveBeacon.isLiquid || aboveBeacon.type.isTransparent
     }
 
     private fun addSuperStarEffects(player: Player) {
