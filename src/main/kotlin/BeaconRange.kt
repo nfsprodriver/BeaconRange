@@ -24,7 +24,7 @@ class BeaconRange : JavaPlugin(){
         server.pluginManager.registerEvents(RightClick(), this)
         server.scheduler.scheduleSyncRepeatingTask(this, {
             beaconTask()
-        }, 0L, 100L)
+        }, 200L, 100L)
         if (config.getBoolean("useSuperStar")) {
             addSSRecipe()
         }
@@ -66,19 +66,16 @@ class BeaconRange : JavaPlugin(){
             val loadedChunks = world.loadedChunks
             val beacons: MutableList<Beacon> = mutableListOf()
             loadedChunks.forEach { chunk->
-                val chunkBlocks: Array<out BlockState> = chunk.tileEntities
-                chunkBlocks.forEach { block ->
-                    if (block is Beacon) {
-                        if (useDefault && block.tier >= 4 &&block.primaryEffect == null && block.secondaryEffect == null) {
-                            if (defaultPrim != null) {
-                                block.setPrimaryEffect(PotionEffectType.getByName(defaultPrim))
-                            }
-                            if (defaultSec != null) {
-                                block.setSecondaryEffect(PotionEffectType.getByName(defaultSec))
-                            }
+                chunk.tileEntities.filterIsInstance<Beacon>().forEach { block ->
+                    if (useDefault && block.tier >= 4 &&block.primaryEffect == null && block.secondaryEffect == null) {
+                        if (defaultPrim != null) {
+                            block.setPrimaryEffect(PotionEffectType.getByName(defaultPrim))
                         }
-                        beacons.add(block)
+                        if (defaultSec != null) {
+                            block.setSecondaryEffect(PotionEffectType.getByName(defaultSec))
+                        }
                     }
+                    beacons.add(block)
                 }
             }
             world.players.forEach { player ->

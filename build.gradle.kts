@@ -8,7 +8,7 @@ plugins {
     id("com.github.johnrengelman.shadow").version("6.1.0")
 }
 group = "nfsprodriver"
-version = "1.2"
+version = "1.4"
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
