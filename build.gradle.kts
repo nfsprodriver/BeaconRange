@@ -8,16 +8,17 @@ plugins {
     id("com.github.johnrengelman.shadow").version("6.1.0")
 }
 group = "nfsprodriver"
-version = "1.4"
+version = "1.5"
 repositories {
     mavenCentral()
-    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://oss.sonatype.org/content/repositories/central")
 }
 dependencies {
     val kotlinVersion: String by System.getProperties()
     implementation(kotlin("stdlib", kotlinVersion))
-    //https://papermc.io/javadocs/paper/1.16/overview-summary.html
-    compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT")
 }
 val autoRelocate by tasks.register<ConfigureShadowRelocation>("configureShadowRelocation", ConfigureShadowRelocation::class) {
     target = tasks.getByName("shadowJar") as ShadowJar?
@@ -37,7 +38,7 @@ tasks {
     }
     withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "16"
         }
     }
 }

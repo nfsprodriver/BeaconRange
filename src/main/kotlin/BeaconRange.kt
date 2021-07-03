@@ -4,8 +4,6 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Beacon
 import org.bukkit.block.Block
-import org.bukkit.block.BlockState
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.*
 import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.java.JavaPlugin
@@ -14,7 +12,6 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.inventory.ShapedRecipe
 
 import org.bukkit.inventory.ItemStack
-import java.util.function.Predicate
 
 
 class BeaconRange : JavaPlugin(){
@@ -34,16 +31,10 @@ class BeaconRange : JavaPlugin(){
         remSSRecipe()
     }
 
-    private fun generateConfig() {
-
-    }
-
     private fun addSSRecipe() {
         val superStar = ItemStack(Material.NETHER_STAR)
-        val ssMeta = superStar.itemMeta
-        ssMeta.setDisplayName("Super Star (enabled)")
-        superStar.setItemMeta(ssMeta)
-        superStar.lore = listOf("No effects")
+        superStar.itemMeta?.setDisplayName("Super Star (enabled)")
+        superStar.itemMeta?.lore = listOf("No effects")
         val superStarRec = ShapedRecipe(NamespacedKey(this, "superStar"), superStar)
         superStarRec.shape("SSS", "SSS", "SSS")
         superStarRec.setIngredient('S', Material.NETHER_STAR)
@@ -110,7 +101,7 @@ class BeaconRange : JavaPlugin(){
                 beaconEffects.forEach { (beaconEffectType, beaconEffectAmp) ->
                     val inv: Inventory = player.inventory
                     val stars: List<ItemStack> = inv.contents.filter { itemStack -> itemStack?.itemMeta?.displayName?.contains("Super Star") == true }
-                    if (stars.isEmpty() || stars.first().itemMeta.displayName.contains("enabled")) {
+                    if (stars.isEmpty() || stars.first().itemMeta?.displayName?.contains("enabled") == true) {
                         val effect = PotionEffect(beaconEffectType, duration, minOf(beaconEffectAmp, config.getInt("maxAmp").minus(1)))
                         player.addPotionEffect(effect)
                     }
@@ -166,7 +157,7 @@ class BeaconRange : JavaPlugin(){
                 beaconEffects.forEach { beaconEffect ->
                     lore.add(beaconEffect.key.name+": "+beaconEffect.value.toString())
                 }
-                inv.itemInOffHand.lore = lore
+                inv.itemInOffHand.itemMeta?.lore = lore
             }
         }
     }
@@ -180,7 +171,7 @@ class BeaconRange : JavaPlugin(){
         val inv = player.inventory
         val itemName: String? = inv.itemInOffHand.itemMeta?.displayName
         if (itemName != null && itemName.contains("Super Star") && itemName.contains("enabled")) {
-            inv.itemInOffHand.lore?.forEach { starEffect ->
+            inv.itemInOffHand.itemMeta?.lore?.forEach { starEffect ->
                 val split: List<String> = starEffect.split(": ")
                 if (split.count() == 2) {
                     val effectType: PotionEffectType = PotionEffectType.getByName(split[0])!!

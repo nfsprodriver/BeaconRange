@@ -15,7 +15,7 @@ class RightClick : Listener {
             val itemName: String? = inv.itemInMainHand.itemMeta?.displayName
             if (itemName != null) {
                 if(itemName.contains("Super Star")) {
-                    val meta: ItemMeta = inv.itemInMainHand.itemMeta
+                    val meta: ItemMeta = inv.itemInMainHand.itemMeta!!
                     if (itemName.contains("enabled")) {
                         meta.setDisplayName("Super Star (disabled)")
                     } else {
