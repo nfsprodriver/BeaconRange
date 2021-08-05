@@ -13,3 +13,5 @@ defaultPrim: NIGHT_VISION
 defaultSec: SATURATION
 # Must be boolean: Whether to use the super star for transmitting stored effects
 useSuperStar: false
+# Must be boolean: Whether the super star needs to be used with or without a beacon in the near
+superStarWBeacon: true

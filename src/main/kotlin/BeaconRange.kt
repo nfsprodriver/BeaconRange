@@ -12,6 +12,7 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.inventory.ShapedRecipe
 
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
 
 
 class BeaconRange : JavaPlugin(){
@@ -33,8 +34,10 @@ class BeaconRange : JavaPlugin(){
 
     private fun addSSRecipe() {
         val superStar = ItemStack(Material.NETHER_STAR)
-        superStar.itemMeta?.setDisplayName("Super Star (enabled)")
-        superStar.itemMeta?.lore = listOf("No effects")
+        val meta = superStar.itemMeta!!
+        meta.setDisplayName("Super Star (enabled)")
+        meta.lore = listOf("No effects")
+        superStar.itemMeta = meta
         val superStarRec = ShapedRecipe(NamespacedKey(this, "superStar"), superStar)
         superStarRec.shape("SSS", "SSS", "SSS")
         superStarRec.setIngredient('S', Material.NETHER_STAR)
@@ -53,6 +56,7 @@ class BeaconRange : JavaPlugin(){
         val defaultPrim: String? = config.getString("defaultPrim")
         val defaultSec: String? = config.getString("defaultSec")
         val useSuperStar: Boolean = config.getBoolean("useSuperStar")
+        val superStarWBeacon: Boolean = config.getBoolean("superStarWBeacon")
         server.worlds.forEach { world ->
             val loadedChunks = world.loadedChunks
             val beacons: MutableList<Beacon> = mutableListOf()
@@ -108,6 +112,9 @@ class BeaconRange : JavaPlugin(){
                 }
                 if (useSuperStar) {
                     setSuperStar(player, beaconEffects)
+                    if (!superStarWBeacon) {
+                        addSuperStarEffects(player)
+                    }
                 }
             }
             world.loadedChunks.forEach { chunk ->
@@ -152,12 +159,14 @@ class BeaconRange : JavaPlugin(){
     private fun setSuperStar (player: Player, beaconEffects: MutableMap<PotionEffectType, Int>) {
         val inv = player.inventory
         if (inv.itemInOffHand.itemMeta?.displayName?.contains("Super Star") == true) {
-            if (beaconEffects.keys.count() > 0) {
+            if (beaconEffects.keys.isNotEmpty()) {
+                val meta = inv.itemInOffHand.itemMeta!!
                 val lore = mutableListOf<String>()
                 beaconEffects.forEach { beaconEffect ->
                     lore.add(beaconEffect.key.name+": "+beaconEffect.value.toString())
                 }
-                inv.itemInOffHand.itemMeta?.lore = lore
+                meta.lore = lore
+                inv.itemInOffHand.itemMeta = meta
             }
         }
     }
